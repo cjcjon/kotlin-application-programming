@@ -1,6 +1,8 @@
 package chapter3
 
+import chapter3.chapter3.CustomPartitioner
+
 fun main() {
   val testProducer = SimpleProducer()
-  testProducer.produce("testMessage-2")
+  testProducer.produceBlocking("blocking-message", CustomPartitioner::class)
 }
