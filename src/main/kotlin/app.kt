@@ -1,6 +1,8 @@
 package chapter3
 
+import chapter3.chapter3.SimpleConsumer
+
 fun main() {
-  val testProducer = SimpleProducer()
-  testProducer.produceNonBlocking("nonblocking-message")
+  val testConsumer = SimpleConsumer()
+  testConsumer.consume()
 }
