@@ -2,6 +2,7 @@ package chapter3.chapter3
 
 import chapter3.logger
 import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
@@ -70,6 +71,35 @@ class SimpleConsumer {
           e != null -> logger().error("Commit failed for offsets {}", offsets, e)
           else -> println("Commit succeeded")
         }
+      }
+    }
+  }
+
+  fun consumeRebalanced(): Unit {
+    val configs = KafkaProperties.stringConsumer(groupId = GROUP_ID)
+    configs.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
+
+    val consumer = KafkaConsumer<String, String>(configs)
+    val currentOffsets = HashMap<TopicPartition, OffsetAndMetadata>()
+    consumer.subscribe(listOf(TOPIC_NAME), object : ConsumerRebalanceListener {
+      // 리밸런스 시작 전 호출
+      override fun onPartitionsRevoked(partitions: MutableCollection<TopicPartition>?) {
+        logger().warn("Partitions are revoked")
+        consumer.commitSync(currentOffsets)
+      }
+
+      // 리밸런스 종료 후 호출
+      override fun onPartitionsAssigned(partitions: MutableCollection<TopicPartition>?) {
+        logger().warn("Partitions are assigned")
+      }
+    })
+
+    while (true) {
+      val records = consumer.poll(Duration.ofSeconds(1))
+      records.forEach {
+        logger().info("{}", it)
+        currentOffsets.put(TopicPartition(it.topic(), it.partition()), OffsetAndMetadata(it.offset() + 1))
+        consumer.commitSync(currentOffsets)
       }
     }
   }
