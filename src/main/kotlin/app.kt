@@ -1,8 +1,9 @@
 package chapter3
 
-import chapter3.chapter3.SimpleConsumer
+import chapter3.chapter3.KafkaAdmin
 
 fun main() {
-  val testConsumer = SimpleConsumer()
-  testConsumer.consumeShutdownSafely()
+  val admin = KafkaAdmin()
+  admin.describeBroker()
+  admin.describeTopic()
 }

@@ -35,4 +35,11 @@ object KafkaProperties {
 
     return configs
   }
+
+  fun defaultAdmin(servers: String = BOOTSTRAP_SERVERS): Properties {
+    val configs = Properties()
+    configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, servers)
+
+    return configs
+  }
 }
