@@ -55,6 +55,25 @@ class SimpleConsumer {
     }
   }
 
+  fun consumeAsync(): Unit {
+    val configs = KafkaProperties.stringConsumer(groupId = GROUP_ID)
+    configs.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
+
+    val consumer = KafkaConsumer<String, String>(configs)
+    consumer.subscribe(listOf(TOPIC_NAME))
+
+    while (true) {
+      val records = consumer.poll(Duration.ofSeconds(1))
+      records.forEach { logger().info("{}", it) }
+      consumer.commitAsync() { offsets, e ->
+        when {
+          e != null -> logger().error("Commit failed for offsets {}", offsets, e)
+          else -> println("Commit succeeded")
+        }
+      }
+    }
+  }
+
   companion object {
     val TOPIC_NAME = "test"
     val GROUP_ID = "test-group"
