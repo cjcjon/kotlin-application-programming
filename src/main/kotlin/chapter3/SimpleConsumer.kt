@@ -6,6 +6,7 @@ import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.common.TopicPartition
+import org.apache.kafka.common.errors.WakeupException
 import util.KafkaProperties
 import java.time.Duration
 
@@ -113,6 +114,32 @@ class SimpleConsumer {
     while (true) {
       val records = consumer.poll(Duration.ofSeconds(1))
       records.forEach { logger().info("{}", it) }
+    }
+  }
+
+  fun consumeShutdownSafely(): Unit {
+    val configs = KafkaProperties.stringConsumer(groupId = GROUP_ID)
+
+    val consumer = KafkaConsumer<String, String>(configs)
+    consumer.subscribe(listOf(TOPIC_NAME))
+
+    // 런타임 종료될 때 컨슈머 종료 훅 호출
+    Runtime.getRuntime().addShutdownHook(object : Thread() {
+      override fun run() {
+        logger().info("Shutdown hook")
+        consumer.wakeup()
+      }
+    })
+
+    try {
+      while (true) {
+        val records = consumer.poll(Duration.ofSeconds(1))
+        records.forEach { logger().info("{}", it) }
+      }
+    } catch (e: WakeupException) {
+      logger().warn("Wakeup consumer")
+    } finally {
+      consumer.close()
     }
   }
 
