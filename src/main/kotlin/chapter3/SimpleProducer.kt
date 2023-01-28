@@ -32,6 +32,21 @@ class SimpleProducer {
     producer.close()
   }
 
+  fun produceNonBlocking(message: String): Unit {
+    val configs = KafkaProperties.stringProducer()
+
+    val producer = KafkaProducer<String, String>(configs)
+    val record = ProducerRecord<String, String>(TOPIC_NAME, message)
+    producer.send(record) { metaData, e ->
+      if (e != null) logger().error(e.message, e)
+      else logger().info(metaData.toString())
+    }
+
+    // 비동기 수행을 위해 임시로 대기
+    Thread.sleep(1000)
+    producer.close()
+  }
+
   companion object {
     val TOPIC_NAME = "test"
   }
