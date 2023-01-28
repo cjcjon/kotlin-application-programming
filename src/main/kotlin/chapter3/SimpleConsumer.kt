@@ -104,6 +104,18 @@ class SimpleConsumer {
     }
   }
 
+  fun consumePartition(partitionNumber: Int): Unit {
+    val configs = KafkaProperties.stringConsumer(groupId = GROUP_ID)
+
+    val consumer = KafkaConsumer<String, String>(configs)
+    consumer.assign(listOf(TopicPartition(TOPIC_NAME, partitionNumber)))
+
+    while (true) {
+      val records = consumer.poll(Duration.ofSeconds(1))
+      records.forEach { logger().info("{}", it) }
+    }
+  }
+
   companion object {
     val TOPIC_NAME = "test"
     val GROUP_ID = "test-group"
