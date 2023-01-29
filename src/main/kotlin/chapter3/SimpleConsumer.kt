@@ -1,6 +1,6 @@
 package chapter3.chapter3
 
-import chapter3.logger
+import logger
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
 import org.apache.kafka.clients.consumer.KafkaConsumer

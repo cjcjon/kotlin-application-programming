@@ -1,5 +1,6 @@
 package chapter3
 
+import logger
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.Partitioner
 import org.apache.kafka.clients.producer.ProducerConfig

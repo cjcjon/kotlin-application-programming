@@ -1,6 +1,6 @@
 package chapter3.chapter3
 
-import chapter3.logger
+import logger
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.common.config.ConfigResource
 import util.KafkaProperties
@@ -30,7 +30,7 @@ class KafkaAdmin {
   fun describeTopic(): Unit {
     val configs = KafkaProperties.defaultAdmin()
     val admin = AdminClient.create(configs)
-    val topicNames = admin.describeTopics(listOf("test")).allTopicNames().get()
+    val topicNames = admin.describeTopics(listOf("test")).all().get()
 
     logger().info("== Get test topic information")
     logger().info("{}", topicNames)
